@@ -1,0 +1,172 @@
+package main
+
+import (
+	"fmt"
+	"os"
+	"strconv"
+
+	"github.com/digitalocean/godo"
+	"github.com/spf13/cobra"
+)
+
+// Show information about a Floating IP.
+func Show(cmd *cobra.Command, args []string) {
+	client := GetClient(Token)
+
+	if len(args) == 1 {
+		floatingIP, _, err := client.FloatingIPs.Get(args[0])
+
+		if err != nil {
+			fmt.Println("Error: ", err)
+			os.Exit(1)
+		}
+
+		fmt.Println("Floating IP\tRegion\t\tDroplet ID\tDroplet Name")
+		fmt.Println("-----------\t------\t\t----------\t------------")
+
+		ip := floatingIP.IP
+		region := floatingIP.Region.Name
+		if floatingIP.Droplet != nil {
+			dropletID := floatingIP.Droplet.ID
+			dropletName := floatingIP.Droplet.Name
+			fmt.Printf("%v\t%v\t%v\t\t%v\n", ip, region, dropletID, dropletName)
+		} else {
+			fmt.Printf("%v\t%v\n", ip, region)
+		}
+	} else {
+		cmd.Help()
+	}
+}
+
+// Create a new Floating IP.
+func Create(cmd *cobra.Command, args []string) {
+	client := GetClient(Token)
+
+	if len(args) == 1 {
+		id, err := strconv.Atoi(args[0])
+
+		createRequest := &godo.FloatingIPCreateRequest{
+			DropletID: id,
+		}
+
+		floatingIP, _, err := client.FloatingIPs.Create(createRequest)
+
+		if err != nil {
+			fmt.Println("Error: ", err)
+			os.Exit(1)
+		}
+
+		fmt.Println(floatingIP.IP)
+	} else if Region != "" && len(args) < 1 {
+		createRequest := &godo.FloatingIPCreateRequest{
+			Region: Region,
+		}
+
+		floatingIP, _, err := client.FloatingIPs.Create(createRequest)
+
+		if err != nil {
+			fmt.Println("Error: ", err)
+			os.Exit(1)
+		}
+
+		fmt.Println(floatingIP.IP)
+	} else {
+		cmd.Help()
+	}
+}
+
+// Assign an existing Floating IP to a Droplet.
+func Assign(cmd *cobra.Command, args []string) {
+	client := GetClient(Token)
+
+	if len(args) == 2 {
+		id, err := strconv.Atoi(args[1])
+
+		action, _, err := client.FloatingIPActions.Assign(args[0], id)
+
+		if err != nil {
+			fmt.Println("Error: ", err)
+			os.Exit(1)
+		}
+
+		fmt.Printf("Assigning %v to Droplet %v in %v...\n", args[0], id, action.Region.Slug)
+	} else {
+		cmd.Help()
+	}
+}
+
+// Unassign a Floating IP from a Droplet.
+func Unassign(cmd *cobra.Command, args []string) {
+	client := GetClient(Token)
+
+	if len(args) == 1 {
+		action, _, err := client.FloatingIPActions.Unassign(args[0])
+
+		if err != nil {
+			fmt.Println("Error: ", err)
+			os.Exit(1)
+		}
+
+		fmt.Printf("Unassigning %v in %v...\n", args[0], action.Region.Slug)
+	} else {
+		cmd.Help()
+	}
+}
+
+// List information about existing Floating IPs.
+func List(cmd *cobra.Command, args []string) {
+	client := GetClient(Token)
+
+	opt := &godo.ListOptions{
+		Page:    1,
+		PerPage: 200,
+	}
+
+	floatingIPs, _, err := client.FloatingIPs.List(opt)
+
+	if err != nil {
+		fmt.Println("Error: ", err)
+		os.Exit(1)
+	}
+
+	fmt.Println("Floating IP\tRegion\t\tDroplet ID\tDroplet Name")
+	fmt.Println("-----------\t------\t\t----------\t------------")
+
+	for i := range floatingIPs {
+		ip := floatingIPs[i].IP
+		region := floatingIPs[i].Region.Name
+		if floatingIPs[i].Droplet != nil {
+			dropletID := floatingIPs[i].Droplet.ID
+			dropletName := floatingIPs[i].Droplet.Name
+			fmt.Printf("%v\t%v\t%v\t\t%v\n", ip, region, dropletID, dropletName)
+		} else {
+			fmt.Printf("%v\t%v\n", ip, region)
+		}
+	}
+}
+
+// Destroys a Floating IP.
+func Destroy(cmd *cobra.Command, args []string) {
+	client := GetClient(Token)
+
+	if len(args) == 1 {
+		_, err := client.FloatingIPs.Delete(args[0])
+
+		if err != nil {
+			fmt.Println("Error: ", err)
+			os.Exit(1)
+		}
+
+		fmt.Println("Successfully destroyed Floating IP:", args[0])
+	} else {
+		cmd.Help()
+	}
+}
+
+// Checks if a DigitalOcean API Token has been provided.
+func TokenCheck(cmd *cobra.Command, args []string) {
+	if Token == "" {
+		fmt.Println("The '--token flag or $DIGITALOCEAN_TOKEN environmental variable must be set.")
+		os.Exit(1)
+	}
+}

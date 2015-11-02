@@ -1,0 +1,77 @@
+package main
+
+import (
+	"os"
+
+	"github.com/spf13/cobra"
+)
+
+var (
+	Token   string
+	Droplet string
+	Region  string
+)
+
+func main() {
+	var rootCmd = &cobra.Command{
+		Use:   "floatctl",
+		Short: "Control DigitalOcean Floatin IPs.",
+	}
+
+	var cmdShow = &cobra.Command{
+		Use:              "show [Floating IP]",
+		Short:            "Show information about a Floating IP",
+		PersistentPreRun: TokenCheck,
+		Run:              Show,
+	}
+
+	var cmdCreate = &cobra.Command{
+		Use:   "create [Droplet ID] --region [Region]",
+		Short: "Create a Floating IP",
+		Long: `Creates a new Floating IP either assigned to a Droplet or reserved
+to a region. If assigning to a specifc Droplet, the '--region' flag
+is not needed and will be ignored.
+
+The new Floating IP is returned as the only output making this
+command suitable for scripting.`,
+		PersistentPreRun: TokenCheck,
+		Run:              Create,
+	}
+
+	var cmdAssign = &cobra.Command{
+		Use:              "assign [Floating IP] [Droplet ID]",
+		Short:            "Assign a Floating IP to a Droplet",
+		PersistentPreRun: TokenCheck,
+		Run:              Assign,
+	}
+
+	var cmdUnassign = &cobra.Command{
+		Use:              "unassign [Floating IP]",
+		Short:            "Unassign a Floating IP",
+		PersistentPreRun: TokenCheck,
+		Run:              Unassign,
+	}
+
+	var cmdList = &cobra.Command{
+		Use:              "list",
+		Short:            "List available Floating IPs",
+		PersistentPreRun: TokenCheck,
+		Run:              List,
+	}
+
+	var cmdDestroy = &cobra.Command{
+		Use:              "destroy [Floating IP]",
+		Short:            "Destroy a Floatin IP",
+		PersistentPreRun: TokenCheck,
+		Run:              Destroy,
+	}
+
+	rootCmd.PersistentFlags().StringVarP(&Token,
+		"token", "t", os.Getenv("DIGITALOCEAN_TOKEN"),
+		"DigitalOcean API Token - $DIGITALOCEAN_TOKEN",
+	)
+
+	rootCmd.AddCommand(cmdCreate, cmdShow, cmdAssign, cmdUnassign, cmdList, cmdDestroy)
+	cmdCreate.Flags().StringVarP(&Region, "region", "r", "", "Region to reserve Floating IP in")
+	rootCmd.Execute()
+}
