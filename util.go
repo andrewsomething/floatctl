@@ -9,26 +9,26 @@ import (
 	"golang.org/x/oauth2"
 )
 
-// Holds an OAuth token.
+// TokenSource holds an OAuth token.
 type TokenSource struct {
 	AccessToken string
 }
 
-// Returns an OAuth token.
+// Token returns an OAuth token.
 func (t *TokenSource) Token() (*oauth2.Token, error) {
 	return &oauth2.Token{
 		AccessToken: t.AccessToken,
 	}, nil
 }
 
-// Returns a godo client.
+// GetClient returns a godo client.
 func GetClient(token string) *godo.Client {
 	tokenSource := &TokenSource{AccessToken: token}
 	oauthClient := oauth2.NewClient(oauth2.NoContext, tokenSource)
 	return godo.NewClient(oauthClient)
 }
 
-// If on a Droplet, returns its ID via the Metadata service.
+// WhoAmI returns a Droplet's ID via the Metadata service if run on one.
 func WhoAmI(cmd *cobra.Command) int {
 	client := metadata.NewClient()
 

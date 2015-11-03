@@ -160,7 +160,7 @@ func List(cmd *cobra.Command, args []string) {
 	}
 }
 
-// Destroys a Floating IP.
+// Destroy a Floating IP.
 func Destroy(cmd *cobra.Command, args []string) {
 	client := GetClient(Token)
 
@@ -178,7 +178,7 @@ func Destroy(cmd *cobra.Command, args []string) {
 	}
 }
 
-// Checks if a DigitalOcean API Token has been provided.
+// TokenCheck checks if a DigitalOcean API Token has been provided.
 func TokenCheck(cmd *cobra.Command, args []string) {
 	if Token == "" {
 		fmt.Println("The '--token flag or $DIGITALOCEAN_TOKEN environmental variable must be set.")
