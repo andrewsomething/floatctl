@@ -75,21 +75,36 @@ func Create(cmd *cobra.Command, args []string) {
 	}
 }
 
-// Assign an existing Floating IP to a Droplet.
-func Assign(cmd *cobra.Command, args []string) {
+// Make the actual API call to assign the Floating IP
+func doAssign(ip string, id int) {
 	client := GetClient(Token)
 
+	action, _, err := client.FloatingIPActions.Assign(ip, id)
+
+	if err != nil {
+		fmt.Println("Error: ", err)
+		os.Exit(1)
+	}
+
+	fmt.Printf("Assigning %v to Droplet %v in %v...\n", ip, id, action.Region.Slug)
+}
+
+// Assign an existing Floating IP to a Droplet.
+func Assign(cmd *cobra.Command, args []string) {
 	if len(args) == 2 {
 		id, err := strconv.Atoi(args[1])
-
-		action, _, err := client.FloatingIPActions.Assign(args[0], id)
 
 		if err != nil {
 			fmt.Println("Error: ", err)
 			os.Exit(1)
 		}
 
-		fmt.Printf("Assigning %v to Droplet %v in %v...\n", args[0], id, action.Region.Slug)
+		doAssign(args[0], id)
+
+	} else if len(args) == 1 {
+		id := WhoAmI(cmd)
+		doAssign(args[0], id)
+
 	} else {
 		cmd.Help()
 	}

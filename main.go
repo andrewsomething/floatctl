@@ -39,8 +39,13 @@ command suitable for scripting.`,
 	}
 
 	var cmdAssign = &cobra.Command{
-		Use:              "assign [Floating IP] [Droplet ID]",
-		Short:            "Assign a Floating IP to a Droplet",
+		Use:   "assign [Floating IP] [Droplet ID]",
+		Short: "Assign a Floating IP to a Droplet",
+		Long: `Assigns a Floating IP to a Droplet.
+
+If run on a DigitalOcean Droplet, the Droplet ID argument can be
+omitted. If so, the Floating IP will be assigned to the Droplet
+itself as reported by the Metadata service.`,
 		PersistentPreRun: TokenCheck,
 		Run:              Assign,
 	}
