@@ -207,6 +207,25 @@ func Destroy(cmd *cobra.Command, args []string) {
 	}
 }
 
+func Assigned(cmd *cobra.Command, args []string) {
+	meta := metadata.NewClient()
+	assigned, err := meta.FloatingIPv4Active()
+
+	if err != nil {
+		fmt.Println("Error: ", err)
+		os.Exit(1)
+	}
+
+	if len(args) > 0 {
+		cmd.Help()
+	} else if assigned == true {
+		fip := AssignedFIP(cmd)
+		fmt.Println(fip)
+	} else {
+		os.Exit(1)
+	}
+}
+
 // TokenCheck checks if a DigitalOcean API Token has been provided.
 func TokenCheck(cmd *cobra.Command, args []string) {
 	if Token == "" {

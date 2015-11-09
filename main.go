@@ -81,12 +81,24 @@ Metadata service and unassigned.`,
 		Run:              Destroy,
 	}
 
+	var cmdAssigned = &cobra.Command{
+		Use:   "assigned",
+		Short: "Check if a Floating IP is assigned",
+		Long: `Check if a Floating IP is assigned.
+
+This command is meant to be run on a DigitalOcean Droplet. If
+there is a Floating IP assigned to the Droplet, its address
+will be returned. If not, the command will exit with a non-zero
+exit code.`,
+		Run: Assigned,
+	}
+
 	rootCmd.PersistentFlags().StringVarP(&Token,
 		"token", "t", os.Getenv("DIGITALOCEAN_TOKEN"),
 		"DigitalOcean API Token - $DIGITALOCEAN_TOKEN",
 	)
 
-	rootCmd.AddCommand(cmdCreate, cmdShow, cmdAssign, cmdUnassign, cmdList, cmdDestroy)
+	rootCmd.AddCommand(cmdCreate, cmdShow, cmdAssign, cmdUnassign, cmdList, cmdDestroy, cmdAssigned)
 	cmdCreate.Flags().StringVarP(&Region, "region", "r", "", "Region to reserve Floating IP in")
 	rootCmd.Execute()
 }
