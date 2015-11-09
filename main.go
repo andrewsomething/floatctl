@@ -56,8 +56,13 @@ itself as reported by the Metadata service.`,
 	}
 
 	var cmdUnassign = &cobra.Command{
-		Use:              "unassign [Floating IP]",
-		Short:            "Unassign a Floating IP",
+		Use:   "unassign [Floating IP]",
+		Short: "Unassign a Floating IP",
+		Long: `Unassign a Floating IP.
+
+If run on a DigitalOcean Droplet with Floating IP, the argument
+can be omitted and the Floating IP will be inferred using the
+Metadata service and unassigned.`,
 		PersistentPreRun: TokenCheck,
 		Run:              Unassign,
 	}

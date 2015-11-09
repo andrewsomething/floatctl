@@ -23,14 +23,7 @@ func Show(cmd *cobra.Command, args []string) {
 	if len(args) == 1 {
 		doShow(args[0])
 	} else if len(args) == 0 && assigned == true {
-		all, err := meta.Metadata()
-
-		if err != nil {
-			fmt.Println("Error: ", err)
-			os.Exit(1)
-		}
-
-		fip := all.FloatingIP.IPv4.IPAddress
+		fip := AssignedFIP(cmd)
 		doShow(fip)
 	} else {
 		cmd.Help()
@@ -134,20 +127,34 @@ func Assign(cmd *cobra.Command, args []string) {
 
 // Unassign a Floating IP from a Droplet.
 func Unassign(cmd *cobra.Command, args []string) {
-	client := GetClient(Token)
+	meta := metadata.NewClient()
+	assigned, err := meta.FloatingIPv4Active()
+
+	if err != nil {
+		fmt.Println("Error: ", err)
+		os.Exit(1)
+	}
 
 	if len(args) == 1 {
-		action, _, err := client.FloatingIPActions.Unassign(args[0])
-
-		if err != nil {
-			fmt.Println("Error: ", err)
-			os.Exit(1)
-		}
-
-		fmt.Printf("Unassigning %v in %v...\n", args[0], action.Region.Slug)
+		doUnassign(args[0])
+	} else if len(args) == 0 && assigned == true {
+		fip := AssignedFIP(cmd)
+		doUnassign(fip)
 	} else {
 		cmd.Help()
 	}
+}
+
+func doUnassign(fip string) {
+	client := GetClient(Token)
+	action, _, err := client.FloatingIPActions.Unassign(fip)
+
+	if err != nil {
+		fmt.Println("Error: ", err)
+		os.Exit(1)
+	}
+
+	fmt.Printf("Unassigning %v in %v...\n", fip, action.Region.Slug)
 }
 
 // List information about existing Floating IPs.

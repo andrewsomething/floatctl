@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/digitalocean/go-metadata"
@@ -34,9 +35,25 @@ func WhoAmI(cmd *cobra.Command) int {
 
 	id, err := client.DropletID()
 	if err != nil {
+		fmt.Println("Error: ", err)
 		cmd.Help()
 		os.Exit(1)
 	}
 
 	return id
+}
+
+func AssignedFIP(cmd *cobra.Command) string {
+	meta := metadata.NewClient()
+	all, err := meta.Metadata()
+
+	if err != nil {
+		fmt.Println("Error: ", err)
+		cmd.Help()
+		os.Exit(1)
+	}
+
+	fip := all.FloatingIP.IPv4.IPAddress
+
+	return fip
 }
