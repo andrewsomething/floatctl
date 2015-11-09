@@ -19,8 +19,13 @@ func main() {
 	}
 
 	var cmdShow = &cobra.Command{
-		Use:              "show [Floating IP]",
-		Short:            "Show information about a Floating IP",
+		Use:   "show [Floating IP]",
+		Short: "Show information about a Floating IP",
+		Long: `Show information about a Floating IP.
+
+If run on a DigitalOcean Droplet and a Floating IP is assigned to
+it, the argument can be obmitted and it will be inferred using the
+Metadata service.`,
 		PersistentPreRun: TokenCheck,
 		Run:              Show,
 	}
