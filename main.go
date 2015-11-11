@@ -1,18 +1,26 @@
 package main
 
 import (
+	"net/url"
 	"os"
 
 	"github.com/spf13/cobra"
 )
 
 var (
-	Token   string
-	Droplet string
-	Region  string
+	Token        string
+	Droplet      string
+	Region       string
+	MetadataBase *url.URL
 )
 
 func main() {
+	u, err := url.Parse("http://169.254.169.254")
+	if err != nil {
+		panic(err)
+	}
+	MetadataBase = u
+
 	var rootCmd = &cobra.Command{
 		Use:   "floatctl",
 		Short: "Control DigitalOcean Floatin IPs.",

@@ -31,7 +31,7 @@ func GetClient(token string) *godo.Client {
 
 // WhoAmI returns a Droplet's ID via the Metadata service if run on one.
 func WhoAmI(cmd *cobra.Command) int {
-	client := metadata.NewClient()
+	client := metadata.NewClient(metadata.WithBaseURL(MetadataBase))
 
 	id, err := client.DropletID()
 	if err != nil {
@@ -44,7 +44,7 @@ func WhoAmI(cmd *cobra.Command) int {
 }
 
 func AssignedFIP(cmd *cobra.Command) string {
-	meta := metadata.NewClient()
+	meta := metadata.NewClient(metadata.WithBaseURL(MetadataBase))
 	all, err := meta.Metadata()
 
 	if err != nil {
