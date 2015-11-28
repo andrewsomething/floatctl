@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/digitalocean/godo"
 	"github.com/spf13/cobra"
 )
 
@@ -13,13 +14,15 @@ func Unassign(cmd *cobra.Command, args []string) {
 		doUnassign(args[0])
 	} else if len(args) == 0 {
 		fip := AssignedFIP(cmd)
-		doUnassign(fip)
+		action := doUnassign(fip)
+
+		fmt.Printf("Unassigning %v in %v...\n", fip, action.Region.Slug)
 	} else {
 		cmd.Help()
 	}
 }
 
-func doUnassign(fip string) {
+func doUnassign(fip string) *godo.Action {
 	client := GetClient(Token)
 	action, _, err := client.FloatingIPActions.Unassign(fip)
 
@@ -28,5 +31,5 @@ func doUnassign(fip string) {
 		os.Exit(1)
 	}
 
-	fmt.Printf("Unassigning %v in %v...\n", fip, action.Region.Slug)
+	return action
 }

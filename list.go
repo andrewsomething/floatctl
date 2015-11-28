@@ -10,6 +10,11 @@ import (
 
 // List information about existing Floating IPs.
 func List(cmd *cobra.Command, args []string) {
+	floatingIPs := doList()
+	printList(floatingIPs)
+}
+
+func doList() []godo.FloatingIP {
 	client := GetClient(Token)
 
 	opt := &godo.ListOptions{
@@ -24,15 +29,19 @@ func List(cmd *cobra.Command, args []string) {
 		os.Exit(1)
 	}
 
+	return floatingIPs
+}
+
+func printList(fips []godo.FloatingIP) {
 	fmt.Println("Floating IP\tRegion\t\tDroplet ID\tDroplet Name")
 	fmt.Println("-----------\t------\t\t----------\t------------")
 
-	for i := range floatingIPs {
-		ip := floatingIPs[i].IP
-		region := floatingIPs[i].Region.Name
-		if floatingIPs[i].Droplet != nil {
-			dropletID := floatingIPs[i].Droplet.ID
-			dropletName := floatingIPs[i].Droplet.Name
+	for i := range fips {
+		ip := fips[i].IP
+		region := fips[i].Region.Name
+		if fips[i].Droplet != nil {
+			dropletID := fips[i].Droplet.ID
+			dropletName := fips[i].Droplet.Name
 			fmt.Printf("%v\t%v\t%v\t\t%v\n", ip, region, dropletID, dropletName)
 		} else {
 			fmt.Printf("%v\t%v\n", ip, region)
