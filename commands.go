@@ -5,32 +5,25 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/digitalocean/go-metadata"
 	"github.com/digitalocean/godo"
 	"github.com/spf13/cobra"
 )
 
 // Show information about a Floating IP.
 func Show(cmd *cobra.Command, args []string) {
-	meta := metadata.NewClient()
-	assigned, err := meta.FloatingIPv4Active()
-
-	if err != nil {
-		fmt.Println("Error: ", err)
-		os.Exit(1)
-	}
-
 	if len(args) == 1 {
-		doShow(args[0])
-	} else if len(args) == 0 && assigned == true {
+		floatingIP := doShow(args[0])
+		printShow(floatingIP)
+	} else if len(args) == 0 {
 		fip := AssignedFIP(cmd)
-		doShow(fip)
+		floatingIP := doShow(fip)
+		printShow(floatingIP)
 	} else {
 		cmd.Help()
 	}
 }
 
-func doShow(fip string) {
+func doShow(fip string) *godo.FloatingIP {
 	client := GetClient(Token)
 	floatingIP, _, err := client.FloatingIPs.Get(fip)
 
@@ -39,14 +32,18 @@ func doShow(fip string) {
 		os.Exit(1)
 	}
 
+	return floatingIP
+}
+
+func printShow(fip *godo.FloatingIP) {
 	fmt.Println("Floating IP\tRegion\t\tDroplet ID\tDroplet Name")
 	fmt.Println("-----------\t------\t\t----------\t------------")
 
-	ip := floatingIP.IP
-	region := floatingIP.Region.Name
-	if floatingIP.Droplet != nil {
-		dropletID := floatingIP.Droplet.ID
-		dropletName := floatingIP.Droplet.Name
+	ip := fip.IP
+	region := fip.Region.Name
+	if fip.Droplet != nil {
+		dropletID := fip.Droplet.ID
+		dropletName := fip.Droplet.Name
 		fmt.Printf("%v\t%v\t%v\t\t%v\n", ip, region, dropletID, dropletName)
 	} else {
 		fmt.Printf("%v\t%v\n", ip, region)
@@ -127,17 +124,9 @@ func Assign(cmd *cobra.Command, args []string) {
 
 // Unassign a Floating IP from a Droplet.
 func Unassign(cmd *cobra.Command, args []string) {
-	meta := metadata.NewClient()
-	assigned, err := meta.FloatingIPv4Active()
-
-	if err != nil {
-		fmt.Println("Error: ", err)
-		os.Exit(1)
-	}
-
 	if len(args) == 1 {
 		doUnassign(args[0])
-	} else if len(args) == 0 && assigned == true {
+	} else if len(args) == 0 {
 		fip := AssignedFIP(cmd)
 		doUnassign(fip)
 	} else {
@@ -208,17 +197,9 @@ func Destroy(cmd *cobra.Command, args []string) {
 }
 
 func Assigned(cmd *cobra.Command, args []string) {
-	meta := metadata.NewClient()
-	assigned, err := meta.FloatingIPv4Active()
-
-	if err != nil {
-		fmt.Println("Error: ", err)
-		os.Exit(1)
-	}
-
-	if len(args) > 0 {
+	if len(args) == 1 {
 		cmd.Help()
-	} else if assigned == true {
+	} else if len(args) == 0 {
 		fip := AssignedFIP(cmd)
 		fmt.Println(fip)
 	} else {
