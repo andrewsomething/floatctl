@@ -52,39 +52,40 @@ func printShow(fip *godo.FloatingIP) {
 
 // Create a new Floating IP.
 func Create(cmd *cobra.Command, args []string) {
-	client := GetClient(Token)
-
 	if len(args) == 1 {
 		id, err := strconv.Atoi(args[0])
+		if err != nil {
+			panic(err)
+		}
 
 		createRequest := &godo.FloatingIPCreateRequest{
 			DropletID: id,
 		}
 
-		floatingIP, _, err := client.FloatingIPs.Create(createRequest)
-
-		if err != nil {
-			fmt.Println("Error: ", err)
-			os.Exit(1)
-		}
-
+		floatingIP := doCreate(createRequest)
 		fmt.Println(floatingIP.IP)
 	} else if Region != "" && len(args) < 1 {
 		createRequest := &godo.FloatingIPCreateRequest{
 			Region: Region,
 		}
 
-		floatingIP, _, err := client.FloatingIPs.Create(createRequest)
-
-		if err != nil {
-			fmt.Println("Error: ", err)
-			os.Exit(1)
-		}
-
+		floatingIP := doCreate(createRequest)
 		fmt.Println(floatingIP.IP)
 	} else {
 		cmd.Help()
 	}
+}
+
+func doCreate(req *godo.FloatingIPCreateRequest) *godo.FloatingIP {
+	client := GetClient(Token)
+	floatingIP, _, err := client.FloatingIPs.Create(req)
+
+	if err != nil {
+		fmt.Println("Error: ", err)
+		os.Exit(1)
+	}
+
+	return floatingIP
 }
 
 // Make the actual API call to assign the Floating IP

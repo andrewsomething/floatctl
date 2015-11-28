@@ -12,6 +12,7 @@ var (
 	Droplet      string
 	Region       string
 	MetadataBase *url.URL
+	GodoBase     *url.URL
 )
 
 func main() {
@@ -20,6 +21,12 @@ func main() {
 		panic(err)
 	}
 	MetadataBase = u
+
+	u, err = url.Parse("https://api.digitalocean.com")
+	if err != nil {
+		panic(err)
+	}
+	GodoBase = u
 
 	var rootCmd = &cobra.Command{
 		Use:   "floatctl",

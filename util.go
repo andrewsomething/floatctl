@@ -26,7 +26,9 @@ func (t *TokenSource) Token() (*oauth2.Token, error) {
 func GetClient(token string) *godo.Client {
 	tokenSource := &TokenSource{AccessToken: token}
 	oauthClient := oauth2.NewClient(oauth2.NoContext, tokenSource)
-	return godo.NewClient(oauthClient)
+	client := godo.NewClient(oauthClient)
+	client.BaseURL = GodoBase
+	return client
 }
 
 // WhoAmI returns a Droplet's ID via the Metadata service if run on one.
