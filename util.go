@@ -59,3 +59,11 @@ func AssignedFIP(cmd *cobra.Command) string {
 
 	return fip
 }
+
+// TokenCheck checks if a DigitalOcean API Token has been provided.
+func TokenCheck(cmd *cobra.Command, args []string) {
+	if Token == "" {
+		fmt.Println("The '--token flag or $DIGITALOCEAN_TOKEN environmental variable must be set.")
+		os.Exit(1)
+	}
+}
