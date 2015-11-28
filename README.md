@@ -1,5 +1,6 @@
 
-## floatctl
+## floatctl 
+[![Build Status](https://travis-ci.org/andrewsomething/floatctl.svg)](https://travis-ci.org/andrewsomething/floatctl)
 
 A simple CLI written in Go for controling [DigitalOcean Floating IPs](https://www.digitalocean.com/community/tutorials/how-to-use-floating-ips-on-digitalocean). Its goal is to make it easier to script creating and assigning Floating IPs when working with tools like `keepalived`.
 
